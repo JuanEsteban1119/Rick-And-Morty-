@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Episodios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <button class="button" onclick="location.href='Principal.html'">Página Principal</button>
+    </nav>
+
+    <h1 id="character-name"></h1>
+    <div id="character-details">
+        <img id="character-image" alt="Character Image">
+        <h2>Episodes</h2>
+        <ul id="episode-list"></ul>
+    </div>
+
+    <script>
+        // Obtener los datos del personaje desde localStorage
+        const character = JSON.parse(localStorage.getItem('selectedCharacter'));
+
+        if (character) {
+        document.getElementById('character-name').textContent = character.name;
+        document.getElementById('character-image').src = character.image;
+    
+        // Obtener los episodios en los que aparece el personaje
+        const episodeList = document.getElementById('episode-list');
+    
+        // Mapear las URLs de los episodios y hacer solicitudes para obtener los nombres
+        const episodePromises = character.episode.map(url => fetch(url).then(res => res.json()));
+
+        // Cuando todas las solicitudes se hayan completado, mostrar los episodios
+        Promise.all(episodePromises)
+            .then(episodes => {
+                episodes.forEach(episode => {
+                    const li = document.createElement('li');
+                    li.textContent = `${episode.episode}: ${episode.name} (Air date: ${episode.air_date})`;
+                    episodeList.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching episodes:', error);
+            });
+    }
+    </script>
+</body>
+</html>
